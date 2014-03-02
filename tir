@@ -1,0 +1,127 @@
+#!/bin/bash
+
+##
+## tir - tea is ready
+##
+## Copyright (c) 2014 Kaz Utashiro
+##
+
+define() { IFS='\n' read -r -d '' ${1} || true; }
+
+define help <<EOF
+
+tir - tea is ready
+
+Usage: tir [ wait ] [ what ]
+	-m #  message
+	-w #  time to wait
+	-r    same as -v random
+	-v #  voice
+	-V #  volume ( 0 .. 100 )
+	-E    do not echo message
+	-N    do not send notificaiton
+	-S    do not speak
+EOF
+
+while getopts "dxhcm:eEnNsSw:rv:V:" OPT
+do
+    case $OPT in
+	d) debug=yes;;
+	x) set -x;;
+	w) wait="$OPTARG";;
+	m) message="$OPTARG";;
+	e) echo="yes";;
+	E) echo="no";;
+	n) notify="yes";;
+	N) notify="no";;
+	s) speak="yes";;
+	S) speak="no";;
+	r) voice="random";;
+	v) voice="$OPTARG";;
+	V) volume="$OPTARG";;
+	h) echo -n "$help"; exit;;
+    esac
+done	
+shift $((OPTIND - 1))
+
+: ${debug:=no} ${echo:=yes} ${notify:=yes} ${speak:=yes}
+
+[ "$wait" = "" ] && [[ "$1" =~ ^[0-9] ]] && wait=$1 && shift
+
+[ $# -gt 0 ] && what="$*"
+
+: ${message:=${what:-Tea} is ready}
+
+define script_format <<EOF
+display notification with title "%s" sound name "Default"
+EOF
+
+[[ "$volume" =~ ^[0-9]+$ ]] && define script_format <<EOF
+set curVolume to output volume of (get volume settings)
+set volume output volume ${volume}
+${script_format}\
+delay 1
+set volume output volume curVolume
+EOF
+
+shopt -s nocasematch
+
+echo_message() {
+    [ "$echo" = yes ] || return
+    echo "$*"
+}
+notify_message() {
+    [ "$notify" = yes ] || return
+    local script=$(printf "$script_format" "$*")
+    [ "$debug" = "yes" ] && cat -n <<< "$script"
+    osascript <<< "$script" &
+}
+speak_message() {
+    [ "$speak" = yes ] || return
+    if [[ "$voice" =~ ^rand ]]
+    then
+	voice="$(randomvoice)"
+	[ "$echo" = yes ] && echo $voice is speaking
+    fi
+    say ${voice:+ -v "$voice"} $*
+}
+randomvoice() {
+    say -v ? | randomline | voicename
+}
+randomline() {
+    awk 'BEGIN{srand}{print rand, $0}' | sort -n | head -1 | sed 's/^[^ ]* //'
+}
+voicename() {
+    sed 's/  .*//'
+}
+randomvoice_perl() {
+    perl -le '@_=map/((?: ?\w+)+)/,<>; print $_[rand @_]' <(say -v ?)
+}
+do_sleep() {
+    local time="$1"
+    [[ "$time" =~ ^[0-9] ]] || return
+    local sleep=$(time_second $wait)
+    if [[ $sleep =~ ^[0-9]+$ ]]
+    then
+	echo_message wait $sleep seconds
+	sleep $sleep
+    fi
+}
+time_second() {
+    if [[ "$1" =~ ^([0-9]+)(.*) ]]
+    then
+	local sec=${BASH_REMATCH[1]}
+	local unit=${BASH_REMATCH[2]}
+	[[ "$unit" =~ ^m ]] && sec=$((sec * 60))
+	[[ "$unit" =~ ^h ]] && sec=$((sec * 60 * 60))
+    fi
+    echo $sec
+}
+
+do_sleep $wait
+
+echo_message "$message"
+
+notify_message "$message"
+
+speak_message "$message"
