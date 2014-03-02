@@ -15,7 +15,8 @@ tir 5min Your noodle
 Options:
 
 	-w time		wait time
-	-v voice	choose voice
+	-b sound	choose notification sound
+	-v voice	choose speech voice
 	-v random	use random voice
 	-V volume	set speech volume
 	-m message	set message to show

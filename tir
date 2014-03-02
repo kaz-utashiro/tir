@@ -23,7 +23,7 @@ Usage: tir [ wait ] [ what ]
 	-S    do not speak
 EOF
 
-while getopts "dxhcm:eEnNsSiIw:rv:V:" OPT
+while getopts "dxcm:eEnNsSiIw:rv:V:b:h" OPT
 do
     case $OPT in
 	d) debug=yes;;
@@ -41,12 +41,15 @@ do
 	r) voice="random";;
 	v) voice="$OPTARG";;
 	V) volume="$OPTARG";;
+	b) sound="$OPTARG";;
 	h) echo -n "$help"; exit;;
     esac
 done	
 shift $((OPTIND - 1))
 
-: ${debug:=no} ${echo:=yes} ${notify:=yes} ${speak:=yes} ${itunes:=yes}
+: ${debug:=no}
+: ${echo:=yes} ${notify:=yes} ${speak:=yes} ${itunes:=yes}
+: ${sound:=Default}
 
 [ "$wait" = "" ] && [[ "$1" =~ ^[0-9] ]] && wait=$1 && shift
 
@@ -55,7 +58,7 @@ shift $((OPTIND - 1))
 : ${message:=${what:-Tea} is ready}
 
 define script_format <<EOF
-display notification with title "%s" sound name "Default"
+display notification with title "%s" sound name "$sound"
 EOF
 
 [[ "$volume" =~ ^[0-9]+$ ]] && define script_format <<EOF
