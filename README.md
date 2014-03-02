@@ -22,6 +22,7 @@ Options:
 	-e/-E		echo message or not
 	-n/-N		send notification or not
 	-s/-S		speak or not
+	-i/-I		pause iTunes or not
 
 
 # DESCRIPTION

@@ -23,7 +23,7 @@ Usage: tir [ wait ] [ what ]
 	-S    do not speak
 EOF
 
-while getopts "dxhcm:eEnNsSw:rv:V:" OPT
+while getopts "dxhcm:eEnNsSiIw:rv:V:" OPT
 do
     case $OPT in
 	d) debug=yes;;
@@ -36,6 +36,8 @@ do
 	N) notify="no";;
 	s) speak="yes";;
 	S) speak="no";;
+	i) itunes="yes";;
+	I) itunes="no";;
 	r) voice="random";;
 	v) voice="$OPTARG";;
 	V) volume="$OPTARG";;
@@ -44,7 +46,7 @@ do
 done	
 shift $((OPTIND - 1))
 
-: ${debug:=no} ${echo:=yes} ${notify:=yes} ${speak:=yes}
+: ${debug:=no} ${echo:=yes} ${notify:=yes} ${speak:=yes} ${itunes:=yes}
 
 [ "$wait" = "" ] && [[ "$1" =~ ^[0-9] ]] && wait=$1 && shift
 
@@ -83,7 +85,9 @@ speak_message() {
 	voice="$(randomvoice)"
 	[ "$echo" = yes ] && echo $voice is speaking
     fi
+    [ "$itunes" = yes ] && local status=$(itunes status) && itunes pause
     say ${voice:+ -v "$voice"} $*
+    [ "$status" = playing ] && itunes play
 }
 randomvoice() {
     say -v ? | randomline | voicename
@@ -116,6 +120,24 @@ time_second() {
 	[[ "$unit" =~ ^h ]] && sec=$((sec * 60 * 60))
     fi
     echo $sec
+}
+itunes() {
+    local command=$1
+    local tell="tell application \"iTunes\" to";
+    case $command in
+	pause|play)
+	    osascript -e "$tell $command"
+	    ;;
+	status)
+	    local status=$(osascript -e "$tell player state")
+	    echo $status
+	    [ "$status" != playing ] && return 1
+	    ;;
+	*)
+	    return 2
+	    ;;
+    esac
+    return 0
 }
 
 do_sleep $wait
