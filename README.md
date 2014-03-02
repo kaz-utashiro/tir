@@ -6,18 +6,26 @@ tir - tea is ready
 
 tir [ wait ] [ what ]
 
-tir 60
+# SAMPLES
 
-tir 180 Ramen
+	% tir 60
 
-tir 5min Your noodle
+		wait 60 second and say "Tea is ready"
 
-Options:
+	% tir 180 Ramen
+
+		wait 180 seconds and say "Ramen is ready"
+
+	% tir 5min Your noodle
+
+		wait 300 seconds and say "Your noodle is ready"
+
+# OPTIONS
 
 	-w time		wait time
 	-b sound	choose notification sound
+	-r		same as -v random
 	-v voice	choose speech voice
-	-v random	use random voice
 	-V volume	set speech volume
 	-m message	set message to show
 	-e/-E		echo message or not
@@ -28,18 +36,19 @@ Options:
 
 # DESCRIPTION
 
-__tir__ is very simple command just say "Tea is ready".
+This is the command line kitchen timer for Apple OS X Mavericks.  It
+will show the message on terminal, notification center, and read it
+out using audible speech.  Default message is "Tea is ready" and the
+"tea" is replaced by the command argument.  If the first argument is
+number, command waits that time in second.  Playing iTunes is paused
+automatically during speech.
 
-If the first argument is number, wait that period in second.
+Use __-v__ option to change voice.  Option __-r__ is shortcut for __-v
+random__ and choose random voice.
 
-Optional argument is taken as subject of readiness.
-If "Your ramen" is given, it will tell you that "Your ramen is ready".
-
-By default, it will show the message on the terminal,
-send system notification, and read it out.
-
-It uses OS X capabilities and will not run on other systems.
-
+Option __-V__ can be used to set system sound volume temporarily.
+Volume is the number between 0 and 100, and it will set just for one
+second.
 
 # SEE ALSO
 
@@ -50,4 +59,4 @@ osascript(1), say(1)
 
 Kazumasa Utashiro
 
-https://github.com/kaz-utashiro/tir
+https://github.com/kaz-utashiro/tir/
