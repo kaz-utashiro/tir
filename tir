@@ -6,7 +6,7 @@
 ## Copyright (c) 2014 Kaz Utashiro
 ##
 
-define() { IFS='\n' read -r -d '' ${1} || true; }
+define() { IFS='\n' read -r -d '' ${1} || true ; }
 
 define help <<EOF
 
@@ -47,11 +47,14 @@ do
 done	
 shift $((OPTIND - 1))
 
+[ "$voice" = ? ] && { say -v ? ; exit ; }
+[ "$sound" = ? ] && { ls /System/Library/Sounds | sed 's/\..*//' ; exit ; }
+
 : ${debug:=no}
 : ${echo:=yes} ${notify:=yes} ${speak:=yes} ${itunes:=yes}
 : ${sound:=Default}
 
-[ "$wait" = "" ] && [[ "$1" =~ ^[0-9] ]] && wait=$1 && shift
+[ "$wait" = "" ] && [[ "$1" =~ ^[0-9] ]] && { wait=$1 ; shift ; }
 
 [ $# -gt 0 ] && what="$*"
 
@@ -86,9 +89,10 @@ speak_message() {
     if [[ "$voice" =~ ^rand ]]
     then
 	voice="$(randomvoice)"
-	[ "$echo" = yes ] && echo $voice is speaking
+	echo_message $voice is speaking
     fi
-    [ "$itunes" = yes ] && local status=$(itunes status) && itunes pause
+    local status
+    [ "$itunes" = yes ] && status=$(itunes status) && itunes pause
     say ${voice:+ -v "$voice"} $*
     [ "$status" = playing ] && itunes play
 }
@@ -105,28 +109,31 @@ randomvoice_perl() {
     perl -le '@_=map/((?: ?\w+)+)/,<>; print $_[rand @_]' <(say -v ?)
 }
 do_sleep() {
-    local time="$1"
-    [[ "$time" =~ ^[0-9] ]] || return
-    local sleep=$(time_second $wait)
-    if [[ $sleep =~ ^[0-9]+$ ]]
-    then
-	echo_message wait $sleep seconds
-	sleep $sleep
-    fi
+    local time="$1" sleep
+    sleep=$(time_second $wait) || return
+    echo_message wait $sleep seconds
+    sleep $sleep
 }
 time_second() {
-    if [[ "$1" =~ ^([0-9]+)(.*) ]]
+    local time="$1"
+    if [[ "$time" =~ ^([0-9]+):([0-9]*)$ ]]
+    then
+	local min=${BASH_REMATCH[1]}
+	local sec=${BASH_REMATCH[2]}
+	echo $((min * 60 + sec))
+    elif [[ "$time" =~ ^([0-9]+)(.*) ]]
     then
 	local sec=${BASH_REMATCH[1]}
 	local unit=${BASH_REMATCH[2]}
-	[[ "$unit" =~ ^m ]] && sec=$((sec * 60))
-	[[ "$unit" =~ ^h ]] && sec=$((sec * 60 * 60))
+	[[ "$unit" =~ ^m ]] && ((sec *= 60))
+	[[ "$unit" =~ ^h ]] && ((sec *= 60 * 60))
+	echo $sec
+    else
+	return 1
     fi
-    echo $sec
 }
 itunes() {
-    local command=$1
-    local tell="tell application \"iTunes\" to";
+    local command="$1" tell="tell application \"iTunes\" to"
     case $command in
 	pause|play)
 	    osascript -e "$tell $command"

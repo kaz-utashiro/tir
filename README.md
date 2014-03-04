@@ -50,6 +50,14 @@ Option __-V__ can be used to set system sound volume temporarily.
 Volume is the number between 0 and 100, and it will set just for one
 second.
 
+
+# OTHER SAMPLES
+
+	tir -w 3m -v good -m 'tea is ready tea is tea is ready ee tea is ready tea is tea is ready now'
+
+	tir -w 3m -v good -m 'ramen is ready ee ramen is ready, your ramen is ready ramen is ready'
+
+
 # SEE ALSO
 
 osascript(1), say(1)
