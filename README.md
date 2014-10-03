@@ -34,10 +34,10 @@ tir [ wait ] [ what ]
 	-V volume	set speech volume
 	-m message	set message to show
 	-c time		set countdown interval (set 0 to disable)
+	-i control	iTunes control (*fade, volume, pause, no)
 	-e/-E		echo message or not
 	-n/-N		send notification or not
 	-s/-S		speak or not
-	-i/-I		pause iTunes or not
 	-GR		gorgeous ramen
 	-GU		gorgeous udon
 
@@ -48,12 +48,15 @@ This is the command line kitchen timer for Apple OS X Mavericks.  It
 will show the message on terminal, notification center, and read it
 out using audible speech.  Default message is "Tea is ready" and the
 "tea" is replaced by the command argument.  If the first argument is
-number, command waits that time in second.  Playing iTunes is paused
-automatically during speech.
+number, command waits that time in second.
 
 It produces countdown message every 10 minutes (> 60min), 60 seconds
 (> 60sec), 30 seconds (> 30sec) or 10 seconds.  Countdown interval can
 be set by __-c__ option and set value 0 to disable it.
+
+If iTunes is playing, its volume is faded into half by default during
+speech.  Select control from *fade*, *volume*, *pause* or *no* by
+__-i__ option.
 
 Use __-v__ option to change voice.  Option __-r__ is just a shortcut
 for __-v random__ and choose random voice.  Voice used for last

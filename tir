@@ -20,17 +20,17 @@ Usage: tir [ wait ] [ what ]
 	-v #  voice
 	-l #  voice for last message
 	-V #  volume ( 0 .. 100 )
+	-i #  iTunes control (*fade, pause, volume, no)
 	-E    do not echo message
 	-N    do not send notificaiton
 	-S    do not speak
-	-I    do not pause iTunes
 	-R    ramen shortcut
 	-U    udon shortcut
 	-GR   gorgeous ramen
 	-GU   gorgeous udon
 EOF
 
-while getopts "dxc:Cm:eEnNsSiIw:rv:l:V:b:htRUG" OPT
+while getopts "dxc:Cm:eEnNsSi:w:rv:l:V:b:htRUG" OPT
 do
     case $OPT in
 	d) debug=yes;;
@@ -44,8 +44,7 @@ do
 	N) notify="no";;
 	s) speak="yes";;
 	S) speak="no";;
-	i) itunes="yes";;
-	I) itunes="no";;
+	i) itunes="$OPTARG";;
 	r) voice="random";;
 	v) voice="$OPTARG";;
 	l) last_voice="$OPTARG";;
@@ -66,7 +65,7 @@ shift $((OPTIND - 1))
 [ "$sound" = '?' ] && { ls /System/Library/Sounds | sed 's/\..*//' ; exit ; }
 
 : ${debug:=no}
-: ${echo:=yes} ${notify:=yes} ${speak:=yes} ${itunes:=yes}
+: ${echo:=yes} ${notify:=yes} ${speak:=yes} ${itunes:=fade}
 : ${sound:=Default}
 : ${format:=%s is ready}
 : ${what:=Tea}
@@ -90,6 +89,32 @@ delay 1
 set volume output volume curVolume
 EOF
 
+define fade_itunes <<EOF
+tell application "iTunes"
+	set newVolume to %s
+	set oldVolume to sound volume
+	if newVolume = oldVolume then return
+	set fadeTime to 1.0
+	set stepCount to 10
+	set delayTime to fadeTime / stepCount
+	set step to (newVolume - oldVolume) / stepCount
+	if oldVolume < newVolume then
+		set min to oldVolume
+		set max to newVolume
+	else
+		set min to newVolume
+		set max to oldVolume
+	end if
+	set v to oldVolume
+	repeat
+		set v to v + step
+		if v < min or max < v then exit repeat
+		set sound volume to v
+		delay delayTime
+	end repeat
+end tell
+EOF
+
 shopt -s nocasematch
 
 echo_message() {
@@ -110,10 +135,21 @@ read_message() {
 	voice="$(randomvoice)"
 	echo_message $voice is speaking
     fi
-    local status
-    [ "$itunes" = yes ] && status=$(itunes status) && itunes pause
+    local status ovol nvol
+    if [ "$itunes" != no ] && status=$(itunes status)
+    then
+	ovol=$(itunes volume)
+	nvol=$((ovol / 2))
+	itunes $itunes $nvol
+    fi
     say ${voice:+ -v "$voice"} $*
-    [ "$status" = playing ] && itunes play
+    if [ "$status" = playing ]
+    then
+	case $itunes in
+	    fade|volume) itunes $itunes $ovol;;
+	    pause|stop)  itunes play;;
+	esac
+    fi
 }
 randomvoice() {
     say -v '?' | randomline | voicename
@@ -164,16 +200,35 @@ unit() {
     ((val > 1)) && unit=${unit:+"${unit}s"}
     echo "${val} ${unit}"
 }
+tell() {
+    app="$1"; shift;
+    [ "$1" = to ] && shift
+    osascript -e "tell application \"$app\" to $*"
+}
 itunes() {
-    local command="$1" tell="tell application \"iTunes\" to"
+    local command="$1"; shift;
     case $command in
 	pause|play)
-	    osascript -e "$tell $command"
+	    tell iTunes $command
 	    ;;
 	status)
-	    local status=$(osascript -e "$tell player state")
+	    local status=$(tell iTunes "player state")
 	    echo $status
 	    [ "$status" != playing ] && return 1
+	    ;;
+	volume)
+	    local volume=$(tell iTunes "sound volume")
+	    if (($# == 0))
+	    then
+		echo $volume
+	    else
+		local new_volume=$1; shift;
+		tell iTunes "set sound volume to $new_volume"
+	    fi
+	    ;;
+	fade|fadeto)
+	    local volume=$1; shift;
+	    printf "$fade_itunes" $volume | osascript
 	    ;;
 	*)
 	    return 2
