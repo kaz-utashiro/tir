@@ -3,7 +3,7 @@
 ##
 ## tir - tea is ready
 ##
-## Copyright (c) 2014 Kaz Utashiro
+## Copyright (c) 2014 kaz-utashiro
 ##
 
 define() { IFS='\n' read -r -d '' ${1} || true ; }
@@ -15,21 +15,29 @@ tir - tea is ready
 Usage: tir [ wait ] [ what ]
 	-m #  message
 	-w #  time to wait
+	-c #  countdown interval
 	-r    same as -v random
 	-v #  voice
+	-l #  voice for last message
 	-V #  volume ( 0 .. 100 )
 	-E    do not echo message
 	-N    do not send notificaiton
 	-S    do not speak
+	-I    do not pause iTunes
+	-R    ramen shortcut
+	-U    udon shortcut
+	-GR   gorgeous ramen
+	-GU   gorgeous udon
 EOF
 
-while getopts "dxcm:eEnNsSiIw:rv:V:b:h" OPT
+while getopts "dxc:Cm:eEnNsSiIw:rv:l:V:b:htRUG" OPT
 do
     case $OPT in
 	d) debug=yes;;
 	x) set -x;;
 	w) wait="$OPTARG";;
-	m) message="$OPTARG";;
+	m) format="$OPTARG";;
+	c) countdown="$OPTARG";;
 	e) echo="yes";;
 	E) echo="no";;
 	n) notify="yes";;
@@ -40,9 +48,16 @@ do
 	I) itunes="no";;
 	r) voice="random";;
 	v) voice="$OPTARG";;
+	l) last_voice="$OPTARG";;
 	V) volume="$OPTARG";;
 	b) sound="$OPTARG";;
 	h) echo -n "$help"; exit;;
+	t) test="yes"; notify="no"; speak="no";;
+	R) what="ramen"; wait="3min";;
+	U) what="uudon"; wait="5min";;
+	G) last_voice="good"
+	   format="%s is ready ee %s is ready, your %s is ready %s is ready"
+	   ;;
     esac
 done	
 shift $((OPTIND - 1))
@@ -53,12 +68,15 @@ shift $((OPTIND - 1))
 : ${debug:=no}
 : ${echo:=yes} ${notify:=yes} ${speak:=yes} ${itunes:=yes}
 : ${sound:=Default}
+: ${format:=%s is ready}
+: ${what:=Tea}
+: ${countdown:=600 600 60 60 30 30 10}
 
-[ "$wait" = "" ] && [[ "$1" =~ ^[0-9] ]] && { wait=$1 ; shift ; }
+[[ "$1" =~ ^[0-9] ]] && { wait=$1 ; shift ; }
 
-[ $# -gt 0 ] && what="$*"
+(($# > 0)) && what="$*"
 
-: ${message:=${what:-Tea} is ready}
+message=${format//\%s/$what}
 
 define script_format <<EOF
 display notification with title "%s" sound name "$sound"
@@ -84,7 +102,8 @@ notify_message() {
     [ "$debug" = "yes" ] && cat -n <<< "$script"
     osascript <<< "$script" &
 }
-speak_message() {
+read_message() {
+    local voice=$1; shift;
     [ "$speak" = yes ] || return
     if [[ "$voice" =~ ^rand ]]
     then
@@ -108,13 +127,7 @@ voicename() {
 randomvoice_perl() {
     perl -le '@_=map/((?: ?\w+)+)/,<>; print $_[rand @_]' <(say -v '?')
 }
-do_sleep() {
-    local time="$1" sleep
-    sleep=$(time_second $wait) || return
-    echo_message wait $sleep seconds
-    sleep $sleep
-}
-time_second() {
+time2sec() {
     local time="$1"
     if [[ "$time" =~ ^([0-9]+):([0-9]*)$ ]]
     then
@@ -131,6 +144,25 @@ time_second() {
     else
 	return 1
     fi
+}
+sec2time() {
+    local sec="$1" min time
+    if ((sec >= 60))
+    then
+	((min = sec / 60))
+	((sec = sec % 60))
+	time=$(unit $min minute)
+    fi
+    if ((sec > 0))
+    then
+	time="${time:+${time} }$(unit ${sec} second)"
+    fi
+    echo $time
+}
+unit() {
+    local val="$1" unit="$2"
+    ((val > 1)) && unit=${unit:+"${unit}s"}
+    echo "${val} ${unit}"
 }
 itunes() {
     local command="$1" tell="tell application \"iTunes\" to"
@@ -149,11 +181,42 @@ itunes() {
     esac
     return 0
 }
+interval() {
+    local time="$1" int=60
+    eval "set $countdown"
+    while (($# > 0))
+    do
+	(($# == 1))   && { int=$1; break; }
+	((time > $1)) && { int=$2; break; }
+	shift 2
+    done
+    echo $((int <= 0 || time < int ? time : int))
+}
+do_sleep() {
+    [ "$test" == "yes" ] && return
+    sleep $1
+}
 
-do_sleep $wait
+if [ "$wait" != "" ]
+then
+    sleep=$(time2sec $wait)
+else
+    sleep=0
+fi
+
+while ((sleep > 0))
+do
+    time=$(sec2time $sleep)
+    echo_message "$time left"
+    read_message "$voice" "$time" &
+
+    interval=$(interval $sleep)
+    do_sleep $interval
+    ((sleep -= interval))
+done
 
 echo_message "$message"
 
 notify_message "$message"
 
-speak_message "$message"
+read_message "${last_voice:-$voice}" "$message"

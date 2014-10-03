@@ -20,18 +20,26 @@ tir [ wait ] [ what ]
 
 		wait 300 seconds and say "Your noodle is ready"
 
+	% tir -GR
+
+		try and listen
+
 # OPTIONS
 
 	-w time		wait time
 	-b sound	choose notification sound
 	-r		same as -v random
 	-v voice	choose speech voice
+	-l voice	choose voice for last message
 	-V volume	set speech volume
 	-m message	set message to show
+	-c time		set countdown interval (set 0 to disable)
 	-e/-E		echo message or not
 	-n/-N		send notification or not
 	-s/-S		speak or not
 	-i/-I		pause iTunes or not
+	-GR		gorgeous ramen
+	-GU		gorgeous udon
 
 
 # DESCRIPTION
@@ -43,19 +51,21 @@ out using audible speech.  Default message is "Tea is ready" and the
 number, command waits that time in second.  Playing iTunes is paused
 automatically during speech.
 
-Use __-v__ option to change voice.  Option __-r__ is shortcut for __-v
-random__ and choose random voice.
+It produces countdown message every 10 minutes (> 60min), 60 seconds
+(> 60sec), 30 seconds (> 30sec) or 10 seconds.  Countdown interval can
+be set by __-c__ option and set value 0 to disable it.
+
+Use __-v__ option to change voice.  Option __-r__ is just a shortcut
+for __-v random__ and choose random voice.  Voice used for last
+message can be set by __-l__ option.
 
 Option __-V__ can be used to set system sound volume temporarily.
 Volume is the number between 0 and 100, and it will set just for one
 second.
 
-
-# OTHER SAMPLES
-
-	tir -w 3m -v good -m 'tea is ready tea is tea is ready ee tea is ready tea is tea is ready now'
-
-	tir -w 3m -v good -m 'ramen is ready ee ramen is ready, your ramen is ready ramen is ready'
+Special option __-R__ and __-U__ is prepared for Ramen and Udon.  They
+set wait time 3min and 5min respectively.  Use __-GR__ and __-GU__ for
+gorgeous version.
 
 
 # SEE ALSO
