@@ -65,7 +65,7 @@ shift $((OPTIND - 1))
 [ "$sound" = '?' ] && { ls /System/Library/Sounds | sed 's/\..*//' ; exit ; }
 
 : ${debug:=no}
-: ${echo:=yes} ${notify:=yes} ${speak:=yes} ${itunes:=fade}
+: ${echo:=yes} ${notify:=yes} ${speak:=yes} ${itunes:=fade} ${voice:=Alex}
 : ${sound:=Default}
 : ${format:=%s is ready}
 : ${what:=Tea}
@@ -248,7 +248,7 @@ interval() {
     echo $((int <= 0 || time < int ? time : int))
 }
 do_sleep() {
-    [ "$test" == "yes" ] && return
+    [ "$test" = "yes" ] && return
     sleep $1
 }
 
