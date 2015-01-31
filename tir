@@ -238,7 +238,7 @@ itunes() {
 }
 interval() {
     local time="$1" int=60
-    eval "set $countdown"
+    set -- $countdown
     while (($# > 0))
     do
 	(($# == 1))   && { int=$1; break; }
