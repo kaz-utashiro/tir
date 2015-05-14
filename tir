@@ -241,9 +241,10 @@ interval() {
     set -- $countdown
     while (($# > 0))
     do
-	(($# == 1))   && { int=$1; break; }
-	((time > $1)) && { int=$2; break; }
-	shift 2
+	(($# == 1)) && { int=$1; break; }
+	((time <= $1)) && { shift 2; continue; }
+	int=$((time % $2 > 0 ? time % $2 : $2))
+	break
     done
     echo $((int <= 0 || time < int ? time : int))
 }
