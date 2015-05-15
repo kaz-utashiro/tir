@@ -16,6 +16,8 @@ Usage: tir [ wait ] [ what ]
 	-m #  message
 	-w #  time to wait
 	-c #  countdown interval
+	-C #  message repeat count
+	-I #  message repeat interval
 	-r    same as -v random
 	-v #  voice
 	-l #  voice for last message
@@ -30,7 +32,7 @@ Usage: tir [ wait ] [ what ]
 	-GU   gorgeous udon
 EOF
 
-while getopts "dxc:Cm:eEnNsSi:w:rv:l:V:b:htRUG" OPT
+while getopts "dxc:C:I:m:eEnNsSi:w:rv:l:V:b:htRUG" OPT
 do
     case $OPT in
 	d) debug=yes;;
@@ -38,6 +40,8 @@ do
 	w) wait="$OPTARG";;
 	m) format="$OPTARG";;
 	c) countdown="$OPTARG";;
+	C) repeat="$OPTARG";;
+	I) repeat_interval="$OPTARG";;
 	e) echo="yes";;
 	E) echo="no";;
 	n) notify="yes";;
@@ -66,6 +70,7 @@ shift $((OPTIND - 1))
 
 : ${debug:=no}
 : ${echo:=yes} ${notify:=yes} ${speak:=yes} ${itunes:=fade} ${voice:=Alex}
+: ${repeat:=1} ${repeat_interval:=2}
 : ${sound:=Default}
 : ${format:=%s is ready}
 : ${what:=Tea}
@@ -275,4 +280,8 @@ echo_message "$message"
 
 notify_message "$message"
 
-read_message "${last_voice:-$voice}" "$message"
+while ((repeat-- > 0))
+do
+    read_message "${last_voice:-$voice}" "$message"
+    ((repeat > 0)) && do_sleep $repeat_interval
+done
