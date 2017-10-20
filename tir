@@ -68,10 +68,17 @@ shift $((OPTIND - 1))
 [ "$voice" = '?' ] && { say -v '?' ; exit ; }
 [ "$sound" = '?' ] && { ls /System/Library/Sounds | sed 's/\..*//' ; exit ; }
 
+case "`uname`" in
+    Darwin)
+	: ${notify:=yes} ${speak:=yes} ${itunes:=fade} ;;
+    *)
+	: ${notify:=no} ${speak:=no} ${itunes:=no} ;;
+esac
+
 : ${debug:=no}
-: ${echo:=yes} ${notify:=yes} ${speak:=yes} ${itunes:=fade} ${voice:=Alex}
+: ${voice:=Alex} ${sound:=Default}
+: ${echo:=yes}
 : ${repeat:=1} ${repeat_interval:=2}
-: ${sound:=Default}
 : ${format:=%s is ready}
 : ${what:=Tea}
 : ${countdown:=600 600 60 60 30 30 10}
