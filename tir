@@ -90,10 +90,10 @@ esac
 
 message=${format//\%s/$what}
 
-[[ "$volume" =~ ^[0-9]+$ ]] && define as_notify <<EOF
+[[ "$volume" =~ ^[0-9]+$ ]] && define as_volume_wrap <<EOF
 set curVolume to output volume of (get volume settings)
 set volume output volume ${volume}
-${as_notify}\
+%s
 delay 1
 set volume output volume curVolume
 EOF
@@ -118,6 +118,11 @@ notify_message() {
     [ "$sound" != "" ]    && script="$script sound name \"$sound\""
     [ "$title" != "" ]    && script="$script with title \"$title\""
     [ "$subtitle" != "" ] && script="$script subtitle \"$subtitle\""
+
+    if [ "$as_volume_wrap" != "" ]
+    then
+	script=$(printf "$as_volume_wrap" "$script")
+    fi
 
     [ "$debug" = "yes" ] && cat -n <<< "$script"
     osascript <<< "$script" &
