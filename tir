@@ -3,7 +3,7 @@
 ##
 ## tir - tea is ready
 ##
-## Copyright (c) 2014 kaz-utashiro
+## Copyright (c) 2014-2017 kaz-utashiro
 ##
 
 define() { IFS='\n' read -r -d '' ${1} || true ; }
@@ -119,6 +119,18 @@ tell application "iTunes"
 	end repeat
 end tell
 EOF
+
+define as_app_running <<EOF
+if application "%s" is running
+	"yes"
+else
+	"no"
+end
+EOF
+
+app_running() {
+    printf "$as_app_running" "$1" | osascript
+}
 
 shopt -s nocasematch
 
@@ -257,6 +269,8 @@ do_sleep() {
     [ "$test" = "yes" ] && return
     sleep $1
 }
+
+[ $(app_running iTunes) = "yes" ] || itunes=no
 
 if [ "$wait" != "" ]
 then
