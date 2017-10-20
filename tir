@@ -33,7 +33,7 @@ Usage: tir [ wait ] [ what ]
 	-GU   gorgeous udon
 EOF
 
-while getopts "dxc:C:I:m:eEnNsSi:w:rv:l:V:b:htRUG" OPT
+while getopts "dxc:C:I:m:eEnNsSi:w:rv:l:V:b:htRUYG" OPT
 do
     case $OPT in
 	d) debug=yes;;
@@ -58,10 +58,9 @@ do
 	h) echo -n "$help"; exit;;
 	t) test="yes"; notify="no"; speak="no";;
 	R) what="ramen"; wait="3min";;
-	U) what="uudon"; wait="5min";;
-	G) last_voice="good"
-	   format="%s is ready ee %s is ready, your %s is ready %s is ready"
-	   ;;
+	U) what="uudohn"; wait="5min";;
+	Y) what="yakisobaa"; wait="4min";;
+	G) last_voice="good news";;
     esac
 done	
 shift $((OPTIND - 1))
@@ -87,6 +86,44 @@ esac
 [[ "$1" =~ ^[0-9] ]] && { wait=$1 ; shift ; }
 
 (($# > 0)) && what="$*"
+
+define awk_vowelcount <<'EOF'
+{
+    gsub(/[bcdfgkmnpstvwyz]e( |$)/, " ");
+    for (vowel=0; match(tolower($0), /ey|y[aeiou]*|[aeiou]+/); vowel++) {
+	$0=substr($0, RSTART + RLENGTH)
+    }
+    print vowel
+}
+EOF
+syllable() {
+    echo "$1" | awk "$awk_vowelcount"
+}
+goodnews=(
+    "%s."
+    "%s is ah ready ee, Oh %s is ready, Your %s is all ready, %s is ready ee."
+    "%s is ready ee, %s is ready, your %s is ready, %s is ready."
+    "%s is ready, %s ready, %s is ready, %s ready."
+    "%s ready, Oh %s, %s ready, Oh %s."
+    "%s now, %s, Oh %s, %s."
+    "%s, here now all ready."
+    "%s now all ready."
+    "%s all ready."
+    "%s ready."
+    "%s now."
+)
+
+if [ "$speak" = yes ] && [ "$last_voice" = "good news" ]
+then
+    syllable=$(syllable "$what")
+    [ "$debug" = "yes" ] && echo "syllable=$syllable"
+    if (($syllable < ${#goodnews[*]}))
+    then
+	format=${goodnews[$syllable]}
+    else
+	format=${goodnews[0]}
+    fi
+fi
 
 message=${format//\%s/$what}
 
