@@ -19,9 +19,10 @@ Usage: tir [ wait ] [ what ]
 	-C #  message repeat count
 	-I #  message repeat interval
 	-r    same as -v random
-	-v #  voice
+	-v #  voice (-v ? for list names)
 	-l #  voice for last message
-	-V #  volume ( 0 .. 100 )
+	-b #  notification sound (-b ? for list names)
+	-V #  volume (0 .. 100)
 	-i #  iTunes control (*fade, pause, volume, no)
 	-E    do not echo message
 	-N    do not send notificaiton
@@ -89,19 +90,40 @@ esac
 
 message=${format//\%s/$what}
 
-define script_format <<EOF
-display notification with title "%s" sound name "$sound"
-EOF
-
-[[ "$volume" =~ ^[0-9]+$ ]] && define script_format <<EOF
+[[ "$volume" =~ ^[0-9]+$ ]] && define as_notify <<EOF
 set curVolume to output volume of (get volume settings)
 set volume output volume ${volume}
-${script_format}\
+${as_notify}\
 delay 1
 set volume output volume curVolume
 EOF
 
-define fade_itunes <<EOF
+notify_message() {
+
+    [ "$notify" = yes ] || return
+
+    local title subtitle sound
+    local OPT OPTIND
+    while getopts ":b:t:s:" OPT
+    do
+	case $OPT in
+	    b) sound="$OPTARG";;
+	    t) title="$OPTARG";;
+	    s) subtitle="$OPTARG";;
+	esac
+    done	
+    shift $((OPTIND - 1))
+
+    local script="display notification \"$*\""
+    [ "$sound" != "" ]    && script="$script sound name \"$sound\""
+    [ "$title" != "" ]    && script="$script with title \"$title\""
+    [ "$subtitle" != "" ] && script="$script subtitle \"$subtitle\""
+
+    [ "$debug" = "yes" ] && cat -n <<< "$script"
+    osascript <<< "$script" &
+}
+
+define as_fade_itunes <<EOF
 tell application "iTunes"
 	set newVolume to %s
 	set oldVolume to sound volume
@@ -127,6 +149,10 @@ tell application "iTunes"
 end tell
 EOF
 
+fade_itunes() {
+    printf "$as_fade_itunes" $volume | osascript
+}
+
 define as_app_running <<EOF
 if application "%s" is running
 	"yes"
@@ -144,12 +170,6 @@ shopt -s nocasematch
 echo_message() {
     [ "$echo" = yes ] || return
     echo "$*"
-}
-notify_message() {
-    [ "$notify" = yes ] || return
-    local script=$(printf "$script_format" "$*")
-    [ "$debug" = "yes" ] && cat -n <<< "$script"
-    osascript <<< "$script" &
 }
 read_message() {
     local voice=$1; shift;
@@ -252,7 +272,7 @@ itunes() {
 	    ;;
 	fade|fadeto)
 	    local volume=$1; shift;
-	    printf "$fade_itunes" $volume | osascript
+	    fade_itunes $volume
 	    ;;
 	*)
 	    return 2
@@ -299,7 +319,8 @@ done
 
 echo_message "$message"
 
-notify_message "$message"
+time=$(date "+%H:%M:%S")
+notify_message -b "$sound" -t "TIR" -s "$time" "$message"
 
 while ((repeat-- > 0))
 do
