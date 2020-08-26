@@ -24,6 +24,7 @@ Usage: tir [ wait ] [ what ]
 	-b #  notification sound (-b ? for list names)
 	-V #  volume (0 .. 100)
 	-i #  iTunes control (*fade, pause, volume, no)
+	-W #  set syllable count
 	-E    do not echo message
 	-N    do not send notificaiton
 	-S    do not speak
@@ -33,7 +34,7 @@ Usage: tir [ wait ] [ what ]
 	-GU   gorgeous udon
 EOF
 
-while getopts "dxc:C:I:m:eEnNsSi:w:rv:l:V:b:htRUYG" OPT
+while getopts "dxc:C:I:m:eEnNsSi:w:rv:l:V:b:htRUYGW:" OPT
 do
     case $OPT in
 	d) debug=yes;;
@@ -61,6 +62,7 @@ do
 	U) what="uudohn"; wait="5min";;
 	Y) what="yakisobaa"; wait="4min";;
 	G) last_voice="good news";;
+	W) syllable="$OPTARG";;
     esac
 done	
 shift $((OPTIND - 1))
@@ -81,7 +83,7 @@ esac
 : ${repeat:=1} ${repeat_interval:=2}
 : ${format:=%s is ready}
 : ${what:=Tea}
-: ${countdown:=600 600 60 60 30 30 10}
+: ${countdown:=600 600 60 60 30 30 10 10 5}
 : ${iTunes:=Music}
 
 [[ "$1" =~ ^[0-9] ]] && { wait=$1 ; shift ; }
@@ -116,7 +118,7 @@ goodnews=(
 
 if [ "$speak" = yes ] && [ "$last_voice" = "good news" ]
 then
-    syllable=$(syllable "$what")
+    : ${syllable:=$(syllable "$what")}
     [ "$debug" = "yes" ] && echo "syllable=$syllable"
     if (($syllable < ${#goodnews[*]}))
     then
