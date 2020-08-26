@@ -89,7 +89,7 @@ esac
 
 define awk_vowelcount <<'EOF'
 {
-    gsub(/[bcdfgkmnpstvwyz]e( |$)/, " ");
+    gsub(/[bcdfgkmnpstrvwyz]e( |$)/, " ");
     for (vowel=0; match(tolower($0), /ey|y[aeiou]*|[aeiou]+/); vowel++) {
 	$0=substr($0, RSTART + RLENGTH)
     }
