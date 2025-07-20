@@ -3,7 +3,7 @@
 ##
 ## tir - tea is ready
 ##
-## Copyright (c) 2014-2017,2020 kaz-utashiro
+## Copyright (c) 2014-2025 kaz-utashiro
 ##
 
 define() { IFS='\n' read -r -d '' ${1} || true ; }
@@ -78,7 +78,7 @@ case "`uname`" in
 esac
 
 : ${debug:=no}
-: ${voice:=Alex} ${sound:=Default}
+: ${voice:=Fred} ${sound:=Default}
 : ${echo:=yes}
 : ${repeat:=1} ${repeat_interval:=2}
 : ${format:=%s is ready}
