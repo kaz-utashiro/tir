@@ -33,18 +33,24 @@
 
 # OPTIONS
 
-    -w time     wait time
-    -b sound    choose notification sound
+    -w time     wait time (default: 0)
+    -b sound    choose notification sound (default: Default)
     -r          same as -v random
-    -v voice    choose speech voice
+    -v voice    choose speech voice (default: Fred)
     -l voice    choose voice for last message
-    -V volume   set speech volume
-    -m message  set message to show
-    -c time     set countdown interval (set 0 to disable)
-    -i control  iTunes control (*fade, volume, pause, no)
-    -e/-E       echo message or not
-    -n/-N       send notification or not
-    -s/-S       speak or not
+    -V volume   set speech volume (0-100)
+    -m message  set message to show (default: "%s is ready")
+    -c time     set countdown interval (default: adaptive, set 0 to disable)
+    -C count    set message repeat count (default: 1)
+    -I time     set message repeat interval in seconds (default: 2)
+    -i control  Music control (*fade, volume, pause, no)
+    -W count    set syllable count
+    -e/-E       echo message or not (default: yes)
+    -n/-N       send notification or not (default: yes on macOS)
+    -s/-S       speak or not (default: yes on macOS)
+    -R          ramen shortcut
+    -Y          yakisoba shortcut
+    -U          udon shortcut
     -GR         gorgeous ramen
     -GY         gorgeous yakisoba
     -GU         gorgeous udon
@@ -60,28 +66,34 @@ first argument is number, command waits that time in second.
 
 It produces countdown message every 10 minutes (> 60min), 60 seconds
 (> 60sec), 30 seconds (> 30sec) or 10 seconds.  Countdown interval can
-be set by __-c__ option and set value 0 to disable it.
+be set by **-c** option and set value 0 to disable it.
 
-If iTunes is playing, its volume is faded into half by default during
+If Music is playing, its volume is faded into half by default during
 a speech.  Select control from *fade*, *volume*, *pause* or *no* by
-__-i__ option.
+**-i** option.
 
-Use __-v__ option to change the voice.  Option __-r__ is just a
-shortcut for __-v random__ and choose random voice.  Voice used for
-the last message can be set by __-l__ option.
+Use **-v** option to change the voice.  Option **-r** is just a
+shortcut for **-v random** and choose random voice.  Voice used for
+the last message can be set by **-l** option.
 
-Option __-V__ can be used to set system sound volume temporarily.
+Option **-V** can be used to set system sound volume temporarily.
 Volume is the number between 0 and 100, and it will set just for one
 second.
 
-Special option __-R__, __-Y__ and __-U__ are prepared for Ramen,
+Option **-C** can be used to repeat the final message multiple times,
+with **-I** option controlling the interval between repetitions.
+
+Special option **-R**, **-Y** and **-U** are prepared for Ramen,
 Yakisoba and Udon.  They set wait time 3min, 4min, 5min respectively.
-Use __-GR__, __GY__ and __-GU__ for gorgeous version.
+Use **-GR**, **-GY** and **-GU** for gorgeous version.
+
+Option **-W** can be used to manually override the syllable count when
+using **-G** option with *Good News* voice.
 
 
 # TIPS
 
-Apple removed the voice *Good News*, used by __-G__ option, and
+Apple removed the voice *Good News*, used by **-G** option, and
 others from default voice list on recent operating systems.  You can
 download disappeared voices from System Preference interface.  Select
 *Accessibility*, then *Speech* and choose *Customize* in *System
@@ -90,9 +102,10 @@ Voice* pulldown bar.
 
 # BUGS
 
-When used with __-G__ option, command try to count syllables within
-the target string using very simple algorithm, which sometimes comes up
-to wrong result.
+When used with **-G** option, the command tries to count syllables within
+the target string using a very simple algorithm, which sometimes comes up
+with the wrong result. Use **-W** option to manually specify the correct
+syllable count in such cases.
 
 
 # SEE ALSO

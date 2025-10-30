@@ -13,24 +13,26 @@ define help <<EOF
 tir - tea is ready
 
 Usage: tir [ wait ] [ what ]
-	-m #  message
-	-w #  time to wait
-	-c #  countdown interval
-	-C #  message repeat count
-	-I #  message repeat interval
+	-m #  message (default: "%s is ready")
+	-w #  time to wait (default: 0)
+	-c #  countdown interval (default: adaptive)
+	-C #  message repeat count (default: 1)
+	-I #  message repeat interval (default: 2)
 	-r    same as -v random
-	-v #  voice (-v ? for list names)
+	-v #  voice (default: Fred, -v ? for list names)
 	-l #  voice for last message
-	-b #  notification sound (-b ? for list names)
+	-b #  notification sound (default: Default, -b ? for list names)
 	-V #  volume (0 .. 100)
-	-i #  iTunes control (*fade, pause, volume, no)
+	-i #  Music control (*fade, pause, volume, no)
 	-W #  set syllable count
-	-E    do not echo message
-	-N    do not send notificaiton
-	-S    do not speak
+	-e/-E echo message or not (default: yes)
+	-n/-N send notification or not (default: yes on macOS)
+	-s/-S speak or not (default: yes on macOS)
 	-R    ramen shortcut
+	-Y    yakisoba shortcut
 	-U    udon shortcut
 	-GR   gorgeous ramen
+	-GY   gorgeous yakisoba
 	-GU   gorgeous udon
 EOF
 
