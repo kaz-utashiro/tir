@@ -3,7 +3,7 @@
 ##
 ## tir - tea is ready
 ##
-## Copyright (c) 2014-2025 kaz-utashiro
+## Copyright (c) 2014-2026 kaz-utashiro
 ##
 
 define() { IFS='\n' read -r -d '' ${1} || true ; }

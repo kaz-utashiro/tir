@@ -1,0 +1,165 @@
+.TH TIR 1 "2026" "tir v0.7" "User Commands"
+.SH NAME
+tir \- kitchen timer with notification, speech, and countdown
+.SH SYNOPSIS
+.B tir
+.RI [ options ]
+.RI [ wait ]
+.RI [ what ]
+.SH DESCRIPTION
+.B tir
+is a command line kitchen timer for Apple macOS 10.9 (Mavericks) and later.
+It will show the message on terminal, notification center, and read it out
+using audible speech.
+The default message is "Tea is ready" and the "tea" is replaced by the
+command argument.
+If the first argument is a number, the command waits that time in seconds.
+.PP
+Time can be specified with suffixes:
+.BR 60 " (seconds),"
+.BR 3min " (minutes),"
+.BR 1h " (hours),"
+or
+.BR 5:30 " (minutes:seconds)."
+.PP
+It produces countdown messages at adaptive intervals: every 10 minutes
+when more than 60 minutes remain, every 60 seconds when more than 60
+seconds remain, every 30 seconds when more than 30 seconds remain,
+and every 10 seconds for the final countdown.
+Countdown interval can be set by the
+.B \-c
+option; set value 0 to disable it.
+.PP
+If Music is playing, its volume is faded to half by default during
+a speech.
+Select control from
+.IR fade ", " volume ", " pause " or " no
+by the
+.B \-i
+option.
+.SH OPTIONS
+.TP
+.BI \-w " time"
+Wait time (default: 0).
+.TP
+.BI \-m " message"
+Set message format (default: "%s is ready").
+.TP
+.BI \-c " time"
+Set countdown interval (default: adaptive, set 0 to disable).
+.TP
+.BI \-C " count"
+Set message repeat count (default: 1).
+.TP
+.BI \-I " time"
+Set message repeat interval in seconds (default: 2).
+.TP
+.BI \-v " voice"
+Choose speech voice (default: Fred).
+Use
+.B \-v \&?
+to list available voices.
+.TP
+.B \-r
+Same as
+.BR "\-v random" .
+.TP
+.BI \-l " voice"
+Choose voice for last message.
+.TP
+.BI \-b " sound"
+Choose notification sound (default: Default).
+Use
+.B \-b \&?
+to list available sounds.
+.TP
+.BI \-V " volume"
+Set system sound volume temporarily (0\-100).
+Volume is restored after one second.
+.TP
+.BI \-i " control"
+Music control during speech:
+.IR fade " (default),"
+.IR volume ", " pause " or " no .
+.TP
+.BI \-W " count"
+Set syllable count manually for
+.B \-G
+option.
+.TP
+.BR \-e / \-E
+Echo message or not (default: yes).
+.TP
+.BR \-n / \-N
+Send notification or not (default: yes on macOS).
+.TP
+.BR \-s / \-S
+Speak or not (default: yes on macOS).
+.TP
+.B \-R
+Ramen shortcut (3 minutes).
+.TP
+.B \-Y
+Yakisoba shortcut (4 minutes).
+.TP
+.B \-U
+Udon shortcut (5 minutes).
+.TP
+.BR \-GR ", " \-GY ", " \-GU
+Gorgeous versions of
+.BR \-R ", " \-Y " and " \-U .
+These use the "Good News" voice to sing the completion message to a melody.
+The message format is automatically adjusted based on the syllable count
+of the target word to match the melody timing.
+.SH EXAMPLES
+.TP
+.B tir 60
+Wait 60 seconds and say "Tea is ready".
+.TP
+.B tir 180 Ramen
+Wait 180 seconds and say "Ramen is ready".
+.TP
+.B tir 5min Your noodle
+Wait 5 minutes and say "Your noodle is ready".
+.TP
+.B tir \-c 10 10min
+Wait 10 minutes with countdown every 10 seconds.
+.TP
+.B tir \-GR
+Gorgeous ramen timer (3 minutes with Good News voice).
+.SH TIPS
+Apple removed the voice "Good News", used by the
+.B \-G
+option, from the default voice list on recent operating systems.
+You can download it from System Preferences:
+select Accessibility, then Speech, and choose Customize in the
+System Voice pulldown.
+.SH BUGS
+When used with the
+.B \-G
+option, the command counts syllables using a very simple algorithm,
+which sometimes produces incorrect results.
+Use the
+.B \-W
+option to manually specify the correct syllable count.
+.SH SEE ALSO
+.BR osascript (1),
+.BR say (1)
+.PP
+.UR https://utashiro.hatenablog.com/entry/2014/03/02/164732
+Tea is ready \- Command line kitchen timer for OS X Mavericks
+.UE
+.PP
+.UR https://qiita.com/kaz-utashiro/items/72f9e4c089c46210dec4
+Mavericks command line kitchen timer "Gorgeous Ramen" option
+.UE
+.PP
+.UR https://qiita.com/kaz-utashiro/items/9027eba0c1347d441bd9
+macOS voice "Good News" revival and kitchen timer tir version update
+.UE
+.SH LICENSE
+MIT License
+.SH AUTHOR
+Kazumasa Utashiro
+.UR https://github.com/kaz-utashiro/tir/
+.UE
