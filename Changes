@@ -1,0 +1,10 @@
+Revision history for tir
+
+{{$NEXT}}
+
+v0.8 2026-03-01
+    - Add man page and MIT license
+
+v0.7 2025-07-25
+    - Update documentation to match current implementation
+    - Change default voice from Alex to Fred
