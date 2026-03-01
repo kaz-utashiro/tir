@@ -73,10 +73,13 @@ endif
 	echo "Releasing $(VERSION) (current: $(CURRENT))"
 	$(MAKE) build VER=$(VERSION)
 	git add -u
+	msg="Checking in changes prior to tagging of version $(VERSION)."$$'\n\n'"Changelog diff is:"$$'\n\n'"$$(git --no-pager diff --cached -- Changes)"
+	echo "$$msg"
+	echo "---"
 	git --no-pager diff --cached --stat
 	read -p "Commit and tag $(VERSION)? [y/N] " ans
 	[ "$$ans" = y ] || { echo "Aborted"; exit 1; }
-	git commit -m "Release $(VERSION)"
+	git commit -m "$$msg"
 	git tag $(VERSION)
 	git push origin master $(VERSION)
 	echo "Released $(VERSION)"
