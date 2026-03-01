@@ -1,5 +1,3 @@
-% TIR(1) tir | User Commands
-
 # NAME
 
 tir - kitchen timer with notification, speech, and countdown
@@ -29,85 +27,109 @@ speech.  Select control from *fade*, *volume*, *pause* or *no* by the
 
 # OPTIONS
 
-**-w** *time*
-:   Wait time (default: 0).
+- **-w** *time*
 
-**-m** *message*
-:   Set message format (default: "%s is ready").
+  Wait time (default: 0).
 
-**-c** *time*
-:   Set countdown interval (default: adaptive, set 0 to disable).
+- **-m** *message*
 
-**-C** *count*
-:   Set message repeat count (default: 1).
+  Set message format (default: "%s is ready").
 
-**-I** *time*
-:   Set message repeat interval in seconds (default: 2).
+- **-c** *time*
 
-**-v** *voice*
-:   Choose speech voice (default: Fred).
-    Use **-v ?** to list available voices.
+  Set countdown interval (default: adaptive, set 0 to disable).
 
-**-r**
-:   Same as **-v random**.
+- **-C** *count*
 
-**-l** *voice*
-:   Choose voice for last message.
+  Set message repeat count (default: 1).
 
-**-b** *sound*
-:   Choose notification sound (default: Default).
-    Use **-b ?** to list available sounds.
+- **-I** *time*
 
-**-V** *volume*
-:   Set system sound volume temporarily (0-100).
-    Volume is restored after one second.
+  Set message repeat interval in seconds (default: 2).
 
-**-i** *control*
-:   Music control during speech: *fade* (default), *volume*, *pause* or *no*.
+- **-v** *voice*
 
-**-W** *count*
-:   Set syllable count manually for **-G** option.
+  Choose speech voice (default: Fred).
+  Use **-v ?** to list available voices.
 
-**-e**/**-E**
-:   Echo message or not (default: yes).
+- **-r**
 
-**-n**/**-N**
-:   Send notification or not (default: yes on macOS).
+  Same as **-v random**.
 
-**-s**/**-S**
-:   Speak or not (default: yes on macOS).
+- **-l** *voice*
 
-**-R**
-:   Ramen shortcut (3 minutes).
+  Choose voice for last message.
 
-**-Y**
-:   Yakisoba shortcut (4 minutes).
+- **-b** *sound*
 
-**-U**
-:   Udon shortcut (5 minutes).
+  Choose notification sound (default: Default).
+  Use **-b ?** to list available sounds.
 
-**-GR**, **-GY**, **-GU**
-:   Gorgeous versions of **-R**, **-Y** and **-U**.
-    These use the "Good News" voice to sing the completion message to a
-    melody.  The message format is automatically adjusted based on the
-    syllable count of the target word to match the melody timing.
+- **-V** *volume*
+
+  Set system sound volume temporarily (0-100).
+  Volume is restored after one second.
+
+- **-i** *control*
+
+  Music control during speech: *fade* (default), *volume*, *pause* or *no*.
+
+- **-W** *count*
+
+  Set syllable count manually for **-G** option.
+
+- **-e**/**-E**
+
+  Echo message or not (default: yes).
+
+- **-n**/**-N**
+
+  Send notification or not (default: yes on macOS).
+
+- **-s**/**-S**
+
+  Speak or not (default: yes on macOS).
+
+- **-R**
+
+  Ramen shortcut (3 minutes).
+
+- **-Y**
+
+  Yakisoba shortcut (4 minutes).
+
+- **-U**
+
+  Udon shortcut (5 minutes).
+
+- **-GR**, **-GY**, **-GU**
+
+  Gorgeous versions of **-R**, **-Y** and **-U**.
+  These use the "Good News" voice to sing the completion message to a
+  melody.  The message format is automatically adjusted based on the
+  syllable count of the target word to match the melody timing.
 
 # EXAMPLES
 
-**tir 60**
-:   Wait 60 seconds and say "Tea is ready".
+- **tir 60**
 
-**tir 180 Ramen**
-:   Wait 180 seconds and say "Ramen is ready".
+  Wait 60 seconds and say "Tea is ready".
 
-**tir 5min Your noodle**
-:   Wait 5 minutes and say "Your noodle is ready".
+- **tir 180 Ramen**
 
-**tir -c 10 10min**
-:   Wait 10 minutes with countdown every 10 seconds.
+  Wait 180 seconds and say "Ramen is ready".
 
-**tir -GR**
-:   Gorgeous ramen timer (3 minutes with Good News voice).
+- **tir 5min Your noodle**
+
+  Wait 5 minutes and say "Your noodle is ready".
+
+- **tir -c 10 10min**
+
+  Wait 10 minutes with countdown every 10 seconds.
+
+- **tir -GR**
+
+  Gorgeous ramen timer (3 minutes with Good News voice).
 
 # TIPS
 
