@@ -64,9 +64,9 @@ and read it out using audible speech.  The default message is "Tea is
 ready" and the "tea" is replaced by the command argument.  If the
 first argument is number, command waits that time in second.
 
-It produces countdown message every 10 minutes (> 60min), 60 seconds
-(> 60sec), 30 seconds (> 30sec) or 10 seconds.  Countdown interval can
-be set by **-c** option and set value 0 to disable it.
+Countdown messages are announced every 10 minutes (>10min), every
+minute (>1min), then at 30, 20, 10, and 5 seconds.  Countdown
+interval can be set by **-c** option and set value 0 to disable it.
 
 If Music is playing, its volume is faded into half by default during
 a speech.  Select control from *fade*, *volume*, *pause* or *no* by

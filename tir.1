@@ -22,13 +22,11 @@ Time can be specified with suffixes:
 or
 .BR 5:30 " (minutes:seconds)."
 .PP
-It produces countdown messages at adaptive intervals: every 10 minutes
-when more than 60 minutes remain, every 60 seconds when more than 60
-seconds remain, every 30 seconds when more than 30 seconds remain,
-and every 10 seconds for the final countdown.
-Countdown interval can be set by the
+Countdown messages are announced every 10 minutes (>10min),
+every minute (>1min), then at 30, 20, 10, and 5 seconds.
+Use the
 .B \-c
-option; set value 0 to disable it.
+option to set a fixed interval, or 0 to disable.
 .PP
 If Music is playing, its volume is faded to half by default during
 a speech.
