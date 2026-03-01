@@ -23,6 +23,7 @@ NAME    := tir
 CURRENT := $(shell git describe --tags --abbrev=0 2>/dev/null)
 YEAR    := $(shell date +%Y)
 DATE    := $(shell date +%Y-%m-%d)
+MAKE    := $(MAKE) --no-print-directory
 
 .ONESHELL:
 .PHONY: build check check-changes release
@@ -30,14 +31,14 @@ DATE    := $(shell date +%Y-%m-%d)
 VER  := $(CURRENT)
 
 build:
-	pandoc -s -t man \
+	@pandoc -s -t man \
 		-M title=TIR -M section=1 -M header="User Commands" \
 		-V footer="$(NAME) $(VER)" \
 		-V date="$(YEAR)" \
 		--lua-filter=deflist.lua \
 		README.md -o $(NAME).1
-	@echo "Version: $(VER)"
-	@grep '^\.TH' $(NAME).1
+	echo "Version: $(VER)"
+	grep '^\.TH' $(NAME).1
 
 check:
 	@git diff --quiet -- ':!$(NAME).1' ':!Changes' \
@@ -54,19 +55,25 @@ release:
 ifndef VERSION
 	$(error VERSION required: make release VERSION=v0.9)
 endif
-	set -e
-	$(MAKE) check
+	@set -e
+	git diff --quiet -- ':!$(NAME).1' ':!Changes' \
+	 && git diff --cached --quiet -- ':!$(NAME).1' ':!Changes' \
+		|| { echo "ERROR: uncommitted changes"; exit 1; }
 	echo "$(VERSION)" | grep -qE '^v[0-9]' \
 		|| { echo "ERROR: VERSION must start with v"; exit 1; }
 	! git tag -l | grep -qx "$(VERSION)" \
 		|| { echo "ERROR: tag $(VERSION) already exists"; exit 1; }
-	$(MAKE) check-changes
+	if grep -q '^$(VERSION) ' Changes; then
+		echo "Changes already has $(VERSION) entry, skipping rewrite"
+	else
+		awk '/\{\{.NEXT\}\}/{f=1; next} f && /^[[:space:]]+[^[:space:]]/{ok=1; exit} f && /^[^[:space:]]/{exit 1} END{exit(ok ? 0 : 1)}' Changes \
+			|| { echo "ERROR: No entries under {{\$$NEXT}} in Changes"; exit 1; }
+		sed -i '' 's/{{\$$NEXT}}/{{\$$NEXT}}\'$$'\n''\'$$'\n''$(VERSION) $(DATE)/' Changes
+	fi
 	echo "Releasing $(VERSION) (current: $(CURRENT))"
 	$(MAKE) build VER=$(VERSION)
-	# Rewrite {{$$NEXT}} in Changes
-	sed -i '' 's/{{\$$NEXT}}/{{\$$NEXT}}\'$$'\n''\'$$'\n''$(VERSION) $(DATE)/' Changes
 	git add -u
-	git diff --cached --stat
+	git --no-pager diff --cached --stat
 	read -p "Commit and tag $(VERSION)? [y/N] " ans
 	[ "$$ans" = y ] || { echo "Aborted"; exit 1; }
 	git commit -m "Release $(VERSION)"
