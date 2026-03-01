@@ -109,6 +109,10 @@ speech.  Select control from *fade*, *volume*, *pause* or *no* by the
   melody.  The message format is automatically adjusted based on the
   syllable count of the target word to match the melody timing.
 
+- **-h**
+
+  Show help message.
+
 # EXAMPLES
 
 - **tir 60**
@@ -148,9 +152,9 @@ the **-W** option to manually specify the correct syllable count.
 
 osascript(1), say(1)
 
-- [Tea is ready - Command line kitchen timer for OS X Mavericks](https://utashiro.hatenablog.com/entry/2014/03/02/164732)
-- [Mavericks command line kitchen timer "Gorgeous Ramen" option](https://qiita.com/kaz-utashiro/items/72f9e4c089c46210dec4)
-- [macOS voice "Good News" revival and kitchen timer tir version update](https://qiita.com/kaz-utashiro/items/9027eba0c1347d441bd9)
+- [Tea is ready - Command line kitchen timer for OS X Mavericks](https://utashiro.hatenablog.com/entry/2014/03/02/164732) (Japanese)
+- [Mavericks command line kitchen timer "Gorgeous Ramen" option](https://qiita.com/kaz-utashiro/items/72f9e4c089c46210dec4) (Japanese)
+- [macOS voice "Good News" revival and kitchen timer tir version update](https://qiita.com/kaz-utashiro/items/9027eba0c1347d441bd9) (Japanese)
 
 # LICENSE
 
