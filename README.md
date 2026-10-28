@@ -108,6 +108,7 @@ speech.  Select control from *fade*, *volume*, *pause* or *no* by the
   These use the "Good News" voice to sing the completion message to a
   melody.  The message format is automatically adjusted based on the
   syllable count of the target word to match the melody timing.
+  See **TIPS** for installing the "Good News" voice.
 
 - **-h**
 

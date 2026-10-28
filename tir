@@ -106,11 +106,11 @@ syllable() {
 }
 goodnews=(
     "%s."
-    "%s is ah ready ee, Oh %s is ready, Your %s is all ready, %s is ready ee."
-    "%s is ready ee, %s is ready, your %s is ready, %s is ready."
-    "%s is ready, %s ready, %s is ready, %s ready."
-    "%s ready, Oh %s, %s ready, Oh %s."
-    "%s now, %s, Oh %s, %s."
+    "%s is ah ready ee Oh %s is ready, Your %s is all ready %s is ready ee."
+    "%s is ready ee %s is ready, Your %s is ready %s is ready."
+    "%s is ready %s ready, %s is ready %s ready."
+    "%s ready Oh %s, %s ready Oh %s."
+    "%s now, %s, Oh %s %s."
     "%s, here now all ready."
     "%s now all ready."
     "%s all ready."
