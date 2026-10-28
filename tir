@@ -3,38 +3,19 @@
 ##
 ## tir - tea is ready
 ##
-## Copyright (c) 2014-2026 kaz-utashiro
+## Copyright © 2014-2026 Kazumasa Utashiro
 ##
 
 define() { IFS= read -rd '' "$1" || : ; }
 
-define help <<EOF
-
-tir - tea is ready
-
-Usage: tir [ wait ] [ what ]
-	-m #  message (default: "%s is ready")
-	-w #  time to wait (default: 0)
-	-c #  countdown interval (default: adaptive)
-	-C #  message repeat count (default: 1)
-	-I #  message repeat interval (default: 2)
-	-r    same as -v random
-	-v #  voice (default: Fred, -v ? for list names)
-	-l #  voice for last message
-	-b #  notification sound (default: Default, -b ? for list names)
-	-V #  volume (0 .. 100)
-	-i #  Music control (*fade, pause, volume, no)
-	-W #  set syllable count
-	-e/-E echo message or not (default: yes)
-	-n/-N send notification or not (default: yes on macOS)
-	-s/-S speak or not (default: yes on macOS)
-	-R    ramen shortcut
-	-Y    yakisoba shortcut
-	-U    udon shortcut
-	-GR   gorgeous ramen
-	-GY   gorgeous yakisoba
-	-GU   gorgeous udon
-EOF
+# The manual is the Markdown at the end of this file; -h shows it up
+# to the Version line (NAME, SYNOPSIS and VERSION).
+manual() {
+    sed -e '1,/^: <<.END_OF_MANUAL/d' -e '/^END_OF_MANUAL$/,$d' "${BASH_SOURCE[0]}"
+}
+help() {
+    manual | sed -e 's/^# //' -e '/^Version/q'
+}
 
 while getopts "dxc:C:I:m:eEnNsSi:w:rv:l:V:b:htRUYGW:" OPT
 do
@@ -58,7 +39,7 @@ do
 	l) last_voice="$OPTARG";;
 	V) volume="$OPTARG";;
 	b) sound="$OPTARG";;
-	h) echo -n "$help"; exit;;
+	h) help; exit;;
 	t) test="yes"; notify="no"; speak="no";;
 	R) what="ramen"; wait="3min";;
 	U) what="uudohn"; wait="5min";;
@@ -374,3 +355,204 @@ do
     read_message "${last_voice:-$voice}" "$message"
     ((repeat > 0)) && do_sleep $repeat_interval
 done
+
+exit
+
+: <<'END_OF_MANUAL'
+# NAME
+
+tir - kitchen timer with notification, speech, and countdown
+
+# SYNOPSIS
+
+    tir [ options ] [ wait ] [ what ]
+
+        -m #  message (default: "%s is ready")
+        -w #  time to wait (default: 0)
+        -c #  countdown interval (default: adaptive)
+        -C #  message repeat count (default: 1)
+        -I #  message repeat interval (default: 2)
+        -r    same as -v random
+        -v #  voice (default: Fred, -v ? for list names)
+        -l #  voice for last message
+        -b #  notification sound (default: Default, -b ? for list names)
+        -V #  volume (0 .. 100)
+        -i #  Music control (*fade, pause, volume, no)
+        -W #  set syllable count
+        -e/-E echo message or not (default: yes)
+        -n/-N send notification or not (default: yes on macOS)
+        -s/-S speak or not (default: yes on macOS)
+        -R    ramen shortcut
+        -Y    yakisoba shortcut
+        -U    udon shortcut
+        -GR   gorgeous ramen
+        -GY   gorgeous yakisoba
+        -GU   gorgeous udon
+        -h    show help
+
+# VERSION
+
+Version 0.9
+
+# DESCRIPTION
+
+**tir** is a command line kitchen timer for Apple macOS 10.9 (Mavericks)
+and later.  It will show the message on terminal, notification center,
+and read it out using audible speech.  The default message is "Tea is
+ready" and the "tea" is replaced by the command argument.  If the first
+argument is a number, the command waits that time in seconds.
+
+Time can be specified with suffixes: **60** (seconds), **3min**
+(minutes), **1h** (hours), or **5:30** (minutes:seconds).
+
+Countdown messages are announced every 10 minutes (>10min), every
+minute (>1min), then at 30, 20, 10, and 5 seconds.  Use the **-c**
+option to set a fixed interval, or 0 to disable.
+
+If Music is playing, its volume is faded to half by default during a
+speech.  Select control from *fade*, *volume*, *pause* or *no* by the
+**-i** option.
+
+# OPTIONS
+
+- **-w** *time*
+
+  Wait time (default: 0).
+
+- **-m** *message*
+
+  Set message format (default: "%s is ready").
+
+- **-c** *time*
+
+  Set countdown interval (default: adaptive, set 0 to disable).
+
+- **-C** *count*
+
+  Set message repeat count (default: 1).
+
+- **-I** *time*
+
+  Set message repeat interval in seconds (default: 2).
+
+- **-v** *voice*
+
+  Choose speech voice (default: Fred).
+  Use **-v ?** to list available voices.
+
+- **-r**
+
+  Same as **-v random**.
+
+- **-l** *voice*
+
+  Choose voice for last message.
+
+- **-b** *sound*
+
+  Choose notification sound (default: Default).
+  Use **-b ?** to list available sounds.
+
+- **-V** *volume*
+
+  Set system sound volume temporarily (0-100).
+  Volume is restored after one second.
+
+- **-i** *control*
+
+  Music control during speech: *fade* (default), *volume*, *pause* or *no*.
+
+- **-W** *count*
+
+  Set syllable count manually for **-G** option.
+
+- **-e**/**-E**
+
+  Echo message or not (default: yes).
+
+- **-n**/**-N**
+
+  Send notification or not (default: yes on macOS).
+
+- **-s**/**-S**
+
+  Speak or not (default: yes on macOS).
+
+- **-R**
+
+  Ramen shortcut (3 minutes).
+
+- **-Y**
+
+  Yakisoba shortcut (4 minutes).
+
+- **-U**
+
+  Udon shortcut (5 minutes).
+
+- **-GR**, **-GY**, **-GU**
+
+  Gorgeous versions of **-R**, **-Y** and **-U**.
+  These use the "Good News" voice to sing the completion message to a
+  melody.  The message format is automatically adjusted based on the
+  syllable count of the target word to match the melody timing.
+  See **TIPS** for installing the "Good News" voice.
+
+- **-h**
+
+  Show help message.
+
+# EXAMPLES
+
+- **tir 60**
+
+  Wait 60 seconds and say "Tea is ready".
+
+- **tir 180 Ramen**
+
+  Wait 180 seconds and say "Ramen is ready".
+
+- **tir 5min Your noodle**
+
+  Wait 5 minutes and say "Your noodle is ready".
+
+- **tir -c 10 10min**
+
+  Wait 10 minutes with countdown every 10 seconds.
+
+- **tir -GR**
+
+  Gorgeous ramen timer (3 minutes with Good News voice).
+
+# TIPS
+
+Apple removed the voice "Good News", used by the **-G** option, from
+the default voice list on recent operating systems.  You can download
+it from System Preferences: select Accessibility, then Speech, and
+choose Customize in the System Voice pulldown.
+
+# BUGS
+
+When used with the **-G** option, the command counts syllables using a
+very simple algorithm, which sometimes produces incorrect results.  Use
+the **-W** option to manually specify the correct syllable count.
+
+# SEE ALSO
+
+osascript(1), say(1)
+
+- [Tea is ready - Command line kitchen timer for OS X Mavericks](https://utashiro.hatenablog.com/entry/2014/03/02/164732) (Japanese)
+- [Mavericks command line kitchen timer "Gorgeous Ramen" option](https://qiita.com/kaz-utashiro/items/72f9e4c089c46210dec4) (Japanese)
+- [macOS voice "Good News" revival and kitchen timer tir version update](https://qiita.com/kaz-utashiro/items/9027eba0c1347d441bd9) (Japanese)
+
+# LICENSE
+
+Copyright © 2014-2026 Kazumasa Utashiro
+
+This software is released under the MIT License.
+
+# AUTHOR
+
+Kazumasa Utashiro
+<https://github.com/kaz-utashiro/tir/>
+END_OF_MANUAL

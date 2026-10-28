@@ -1,167 +1,51 @@
-# NAME
+# tir - tea is ready
 
-tir - kitchen timer with notification, speech, and countdown
+**tir** is a command line kitchen timer for macOS.  When the time is
+up, it shows the message on the terminal and in the notification
+center, and reads it out with speech.
 
-# SYNOPSIS
+```sh
+tir 3min                # "Tea is ready" in 3 minutes
+tir 5min Your noodle    # "Your noodle is ready"
+tir -GR                 # gorgeous ramen: 3 minutes, sung by "Good News"
+```
 
-**tir** [*options*] [*wait*] [*what*]
+The manual is [tir.md](tir.md); `tir -h` shows the options.
 
-# DESCRIPTION
+## Install
 
-**tir** is a command line kitchen timer for Apple macOS 10.9 (Mavericks)
-and later.  It will show the message on terminal, notification center,
-and read it out using audible speech.  The default message is "Tea is
-ready" and the "tea" is replaced by the command argument.  If the first
-argument is a number, the command waits that time in seconds.
+With [Homebrew](https://brew.sh/):
 
-Time can be specified with suffixes: **60** (seconds), **3min**
-(minutes), **1h** (hours), or **5:30** (minutes:seconds).
+```sh
+brew install tecolicom/tap/app-tir
+```
 
-Countdown messages are announced every 10 minutes (>10min), every
-minute (>1min), then at 30, 20, 10, and 5 seconds.  Use the **-c**
-option to set a fixed interval, or 0 to disable.
+tir is a single Bash script that uses `say` and `osascript` of macOS,
+so it can also be installed by hand: put it in your `PATH`, and the
+man page where `man` finds it:
 
-If Music is playing, its volume is faded to half by default during a
-speech.  Select control from *fade*, *volume*, *pause* or *no* by the
-**-i** option.
+```sh
+cp tir ~/bin/
+cp tir.1 /usr/local/share/man/man1/
+```
 
-# OPTIONS
+## Development
 
-- **-w** *time*
+The manual is written in Markdown at the end of `tir` (between
+`: <<'END_OF_MANUAL'` and `END_OF_MANUAL`).  `tir -h` prints it up to
+the Version line, and `make build` generates `tir.md` and `tir.1`
+from it; do not edit those two files directly.
 
-  Wait time (default: 0).
+To release, add entries under `{{$NEXT}}` in `Changes`, then run:
 
-- **-m** *message*
+```sh
+make release VERSION=v0.10
+```
 
-  Set message format (default: "%s is ready").
+This sets the Version line of `tir`, regenerates `tir.md` and
+`tir.1`, rewrites `Changes`, and commits, tags and pushes after
+asking.  See the `Makefile` for the steps.
 
-- **-c** *time*
+## License
 
-  Set countdown interval (default: adaptive, set 0 to disable).
-
-- **-C** *count*
-
-  Set message repeat count (default: 1).
-
-- **-I** *time*
-
-  Set message repeat interval in seconds (default: 2).
-
-- **-v** *voice*
-
-  Choose speech voice (default: Fred).
-  Use **-v ?** to list available voices.
-
-- **-r**
-
-  Same as **-v random**.
-
-- **-l** *voice*
-
-  Choose voice for last message.
-
-- **-b** *sound*
-
-  Choose notification sound (default: Default).
-  Use **-b ?** to list available sounds.
-
-- **-V** *volume*
-
-  Set system sound volume temporarily (0-100).
-  Volume is restored after one second.
-
-- **-i** *control*
-
-  Music control during speech: *fade* (default), *volume*, *pause* or *no*.
-
-- **-W** *count*
-
-  Set syllable count manually for **-G** option.
-
-- **-e**/**-E**
-
-  Echo message or not (default: yes).
-
-- **-n**/**-N**
-
-  Send notification or not (default: yes on macOS).
-
-- **-s**/**-S**
-
-  Speak or not (default: yes on macOS).
-
-- **-R**
-
-  Ramen shortcut (3 minutes).
-
-- **-Y**
-
-  Yakisoba shortcut (4 minutes).
-
-- **-U**
-
-  Udon shortcut (5 minutes).
-
-- **-GR**, **-GY**, **-GU**
-
-  Gorgeous versions of **-R**, **-Y** and **-U**.
-  These use the "Good News" voice to sing the completion message to a
-  melody.  The message format is automatically adjusted based on the
-  syllable count of the target word to match the melody timing.
-  See **TIPS** for installing the "Good News" voice.
-
-- **-h**
-
-  Show help message.
-
-# EXAMPLES
-
-- **tir 60**
-
-  Wait 60 seconds and say "Tea is ready".
-
-- **tir 180 Ramen**
-
-  Wait 180 seconds and say "Ramen is ready".
-
-- **tir 5min Your noodle**
-
-  Wait 5 minutes and say "Your noodle is ready".
-
-- **tir -c 10 10min**
-
-  Wait 10 minutes with countdown every 10 seconds.
-
-- **tir -GR**
-
-  Gorgeous ramen timer (3 minutes with Good News voice).
-
-# TIPS
-
-Apple removed the voice "Good News", used by the **-G** option, from
-the default voice list on recent operating systems.  You can download
-it from System Preferences: select Accessibility, then Speech, and
-choose Customize in the System Voice pulldown.
-
-# BUGS
-
-When used with the **-G** option, the command counts syllables using a
-very simple algorithm, which sometimes produces incorrect results.  Use
-the **-W** option to manually specify the correct syllable count.
-
-# SEE ALSO
-
-osascript(1), say(1)
-
-- [Tea is ready - Command line kitchen timer for OS X Mavericks](https://utashiro.hatenablog.com/entry/2014/03/02/164732) (Japanese)
-- [Mavericks command line kitchen timer "Gorgeous Ramen" option](https://qiita.com/kaz-utashiro/items/72f9e4c089c46210dec4) (Japanese)
-- [macOS voice "Good News" revival and kitchen timer tir version update](https://qiita.com/kaz-utashiro/items/9027eba0c1347d441bd9) (Japanese)
-
-# LICENSE
-
-MIT License
-
-# AUTHOR
-
-Kazumasa Utashiro
-<https://github.com/kaz-utashiro/tir/>
+MIT License.  See [LICENSE](LICENSE).

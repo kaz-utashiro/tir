@@ -2,7 +2,8 @@
 # Makefile for tir release management
 #
 # Targets:
-#   make build           - Generate tir.1 from README.md and show version
+#   make build           - Generate tir.md and tir.1 from the manual
+#                          at the end of tir, and show version
 #   make check           - Verify working tree is clean
 #   make check-changes   - Verify Changes has entries under {{$NEXT}}
 #   make release VERSION=v0.9
@@ -10,7 +11,8 @@
 #                          1. Check clean working tree
 #                          2. Validate VERSION format and uniqueness
 #                          3. Check Changes has entries
-#                          4. Generate man page with version
+#                          4. Set the Version line of tir, generate
+#                             tir.md and man page
 #                          5. Rewrite {{$NEXT}} in Changes
 #                          6. Commit, tag, and push
 #
@@ -30,13 +32,17 @@ MAKE    := $(MAKE) --no-print-directory
 
 VER  := $(CURRENT)
 
+# the Markdown between ": <<'END_OF_MANUAL'" and END_OF_MANUAL in tir
+MANUAL := sed -e '1,/^: <<.END_OF_MANUAL/d' -e '/^END_OF_MANUAL$$/,$$d' $(NAME)
+
 build:
-	@pandoc -s -t man \
+	@$(MANUAL) > $(NAME).md
+	pandoc -s -t man \
 		-M title=TIR -M section=1 -M header="User Commands" \
 		-V footer="$(NAME) $(VER)" \
 		-V date="$(YEAR)" \
 		--lua-filter=deflist.lua \
-		README.md -o $(NAME).1
+		$(NAME).md -o $(NAME).1
 	echo "Version: $(VER)"
 	grep '^\.TH' $(NAME).1
 
@@ -71,6 +77,7 @@ endif
 		sed -i '' 's/{{\$$NEXT}}/{{\$$NEXT}}\'$$'\n''\'$$'\n''$(VERSION) $(DATE)/' Changes
 	fi
 	echo "Releasing $(VERSION) (current: $(CURRENT))"
+	sed -i '' 's/^Version .*/Version $(VERSION:v%=%)/' $(NAME)
 	$(MAKE) build VER=$(VERSION)
 	git add -u
 	msg="Checking in changes prior to tagging of version $(VERSION)."$$'\n\n'"Changelog diff is:"$$'\n\n'"$$(git --no-pager diff --cached -- Changes)"
