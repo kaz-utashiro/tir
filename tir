@@ -6,7 +6,7 @@
 ## Copyright (c) 2014-2026 kaz-utashiro
 ##
 
-define() { IFS='\n' read -r -d '' ${1} || true ; }
+define() { IFS= read -rd '' "$1" || : ; }
 
 define help <<EOF
 
