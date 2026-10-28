@@ -2,6 +2,14 @@ Revision history for tir
 
 {{$NEXT}}
 
+v0.11 2026-10-28
+    - tir -h indents the text under the headings as in a man page
+    - Take the version from the Version line of tir; gmake release
+      takes no argument
+    - Stop at once under a make older than 3.82, which has no .ONESHELL
+    - Put the full date in the man page, and write the author URL bare,
+      so that mandoc -Tlint gives no warning
+
 v0.10 2026-10-28
     - Embed the manual in tir as Markdown; -h shows its NAME, SYNOPSIS
       and VERSION, so the usage is written only once
