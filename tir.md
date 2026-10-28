@@ -31,7 +31,7 @@ tir - kitchen timer with notification, speech, and countdown
 
 # VERSION
 
-Version 0.9
+Version 0.10
 
 # DESCRIPTION
 
