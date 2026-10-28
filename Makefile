@@ -41,7 +41,7 @@ build:
 		-M title=TIR -M section=1 -M header="User Commands" \
 		-V footer="$(NAME) $(VER)" \
 		-V date="$(YEAR)" \
-		--lua-filter=deflist.lua \
+		--ascii --lua-filter=deflist.lua \
 		$(NAME).md -o $(NAME).1
 	echo "Version: $(VER)"
 	grep '^\.TH' $(NAME).1
