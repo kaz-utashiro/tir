@@ -9,12 +9,13 @@
 define() { IFS= read -rd '' "$1" || : ; }
 
 # The manual is the Markdown at the end of this file; -h shows it up
-# to the Version line (NAME, SYNOPSIS and VERSION).
+# to the Version line (NAME, SYNOPSIS and VERSION), with the text
+# under the headings indented as in a man page.
 manual() {
     sed -e '1,/^: <<.END_OF_MANUAL/d' -e '/^END_OF_MANUAL$/,$d' "${BASH_SOURCE[0]}"
 }
 help() {
-    manual | sed -e 's/^# //' -e '/^Version/q'
+    manual | sed -e '/^# /!s/^[^ ]/    &/' -e 's/^# //' -e '/^ *Version/q'
 }
 
 while getopts "dxc:C:I:m:eEnNsSi:w:rv:l:V:b:htRUYGW:" OPT
@@ -554,5 +555,5 @@ This software is released under the MIT License.
 # AUTHOR
 
 Kazumasa Utashiro
-<https://github.com/kaz-utashiro/tir/>
+https://github.com/kaz-utashiro/tir/
 END_OF_MANUAL

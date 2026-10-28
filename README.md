@@ -33,18 +33,27 @@ cp tir.1 /usr/local/share/man/man1/
 
 The manual is written in Markdown at the end of `tir` (between
 `: <<'END_OF_MANUAL'` and `END_OF_MANUAL`).  `tir -h` prints it up to
-the Version line, and `make build` generates `tir.md` and `tir.1`
+the Version line, and `gmake build` generates `tir.md` and `tir.1`
 from it; do not edit those two files directly.
 
-To release, add entries under `{{$NEXT}}` in `Changes`, then run:
+To release, add entries under `{{$NEXT}}` in `Changes`, raise the
+`Version` line in the manual of `tir` and commit it, then run:
 
 ```sh
-make release VERSION=v0.10
+gmake release
 ```
 
-This sets the Version line of `tir`, regenerates `tir.md` and
-`tir.1`, rewrites `Changes`, and commits, tags and pushes after
-asking.  See the `Makefile` for the steps.
+Only `Changes` and `tir.1` may be left uncommitted; the release stops
+at once if anything else is, so commit the raised Version line before
+it.
+
+The `Makefile` needs GNU Make 3.82 or later; the `make` of macOS is
+3.81, so use `gmake` there (`brew install make`).
+
+This tags the version on the `Version` line (`Version 0.11` becomes
+`v0.11`), rewrites `Changes`, regenerates `tir.md` and `tir.1`, and
+commits, tags and pushes after asking.  See the `Makefile` for the
+steps.
 
 ## License
 

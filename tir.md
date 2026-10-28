@@ -193,4 +193,4 @@ This software is released under the MIT License.
 # AUTHOR
 
 Kazumasa Utashiro
-<https://github.com/kaz-utashiro/tir/>
+https://github.com/kaz-utashiro/tir/

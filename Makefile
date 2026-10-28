@@ -2,35 +2,41 @@
 # Makefile for tir release management
 #
 # Targets:
-#   make build           - Generate tir.md and tir.1 from the manual
+#   gmake build          - Generate tir.md and tir.1 from the manual
 #                          at the end of tir, and show version
-#   make check           - Verify working tree is clean
-#   make check-changes   - Verify Changes has entries under {{$NEXT}}
-#   make release VERSION=v0.9
-#                        - Release a new version:
+#   gmake check          - Verify working tree is clean
+#   gmake check-changes  - Verify Changes has entries under {{$NEXT}}
+#   gmake release        - Release the version on the Version line of tir:
 #                          1. Check clean working tree
-#                          2. Validate VERSION format and uniqueness
+#                          2. Validate the version and that its tag is new
 #                          3. Check Changes has entries
-#                          4. Set the Version line of tir, generate
-#                             tir.md and man page
-#                          5. Rewrite {{$NEXT}} in Changes
+#                          4. Rewrite {{$NEXT}} in Changes
+#                          5. Generate tir.md and man page
 #                          6. Commit, tag, and push
 #
 # Workflow:
 #   1. During development, add entries under {{$NEXT}} in Changes
-#   2. Run: make release VERSION=v0.9
+#   2. Raise the Version line in the manual of tir, and commit it
+#   3. Run: gmake release
+#
+# GNU Make 3.82 or later is required for .ONESHELL; on macOS, where
+# make is 3.81, use gmake.
 #
 
+ifeq ($(filter oneshell,$(.FEATURES)),)
+$(error GNU Make 3.82 or later is required for .ONESHELL; run gmake)
+endif
+
 NAME    := tir
+# the Version line of the manual in tir, and its tag
+VERSION := $(shell sed -n 's/^Version  *//p' $(NAME))
+TAG     := v$(VERSION)
 CURRENT := $(shell git describe --tags --abbrev=0 2>/dev/null)
-YEAR    := $(shell date +%Y)
 DATE    := $(shell date +%Y-%m-%d)
 MAKE    := $(MAKE) --no-print-directory
 
 .ONESHELL:
 .PHONY: build check check-changes release
-
-VER  := $(CURRENT)
 
 # the Markdown between ": <<'END_OF_MANUAL'" and END_OF_MANUAL in tir
 MANUAL := sed -e '1,/^: <<.END_OF_MANUAL/d' -e '/^END_OF_MANUAL$$/,$$d' $(NAME)
@@ -39,11 +45,11 @@ build:
 	@$(MANUAL) > $(NAME).md
 	pandoc -s -t man \
 		-M title=TIR -M section=1 -M header="User Commands" \
-		-V footer="$(NAME) $(VER)" \
-		-V date="$(YEAR)" \
+		-V footer="$(NAME) $(TAG)" \
+		-V date="$(DATE)" \
 		--ascii --lua-filter=deflist.lua \
 		$(NAME).md -o $(NAME).1
-	echo "Version: $(VER)"
+	echo "Version: $(VERSION)"
 	grep '^\.TH' $(NAME).1
 
 check:
@@ -58,35 +64,31 @@ check-changes:
 	echo "Changes OK"
 
 release:
-ifndef VERSION
-	$(error VERSION required: make release VERSION=v0.9)
-endif
 	@set -e
 	git diff --quiet -- ':!$(NAME).1' ':!Changes' \
 	 && git diff --cached --quiet -- ':!$(NAME).1' ':!Changes' \
 		|| { echo "ERROR: uncommitted changes"; exit 1; }
-	echo "$(VERSION)" | grep -qE '^v[0-9]' \
-		|| { echo "ERROR: VERSION must start with v"; exit 1; }
-	! git tag -l | grep -qx "$(VERSION)" \
-		|| { echo "ERROR: tag $(VERSION) already exists"; exit 1; }
-	if grep -q '^$(VERSION) ' Changes; then
-		echo "Changes already has $(VERSION) entry, skipping rewrite"
+	echo "$(VERSION)" | grep -qE '^[0-9]+(\.[0-9]+)+$$' \
+		|| { echo "ERROR: no Version line like 'Version 0.11' in $(NAME)"; exit 1; }
+	! git tag -l | grep -qx "$(TAG)" \
+		|| { echo "ERROR: tag $(TAG) already exists; raise the Version line of $(NAME)"; exit 1; }
+	if grep -q '^$(TAG) ' Changes; then
+		echo "Changes already has $(TAG) entry, skipping rewrite"
 	else
 		awk '/\{\{.NEXT\}\}/{f=1; next} f && /^[[:space:]]+[^[:space:]]/{ok=1; exit} f && /^[^[:space:]]/{exit 1} END{exit(ok ? 0 : 1)}' Changes \
 			|| { echo "ERROR: No entries under {{\$$NEXT}} in Changes"; exit 1; }
-		sed -i '' 's/{{\$$NEXT}}/{{\$$NEXT}}\'$$'\n''\'$$'\n''$(VERSION) $(DATE)/' Changes
+		sed -i '' 's/{{\$$NEXT}}/{{\$$NEXT}}\'$$'\n''\'$$'\n''$(TAG) $(DATE)/' Changes
 	fi
-	echo "Releasing $(VERSION) (current: $(CURRENT))"
-	sed -i '' 's/^Version .*/Version $(VERSION:v%=%)/' $(NAME)
-	$(MAKE) build VER=$(VERSION)
+	echo "Releasing $(TAG) (current: $(CURRENT))"
+	$(MAKE) build
 	git add -u
-	msg="Checking in changes prior to tagging of version $(VERSION)."$$'\n\n'"Changelog diff is:"$$'\n\n'"$$(git --no-pager diff --cached -- Changes)"
+	msg="Checking in changes prior to tagging of version $(TAG)."$$'\n\n'"Changelog diff is:"$$'\n\n'"$$(git --no-pager diff --cached -- Changes)"
 	echo "$$msg"
 	echo "---"
 	git --no-pager diff --cached --stat
-	read -p "Commit and tag $(VERSION)? [y/N] " ans
+	read -p "Commit and tag $(TAG)? [y/N] " ans
 	[ "$$ans" = y ] || { echo "Aborted"; exit 1; }
 	git commit -m "$$msg"
-	git tag $(VERSION)
-	git push origin master $(VERSION)
-	echo "Released $(VERSION)"
+	git tag $(TAG)
+	git push origin master $(TAG)
+	echo "Released $(TAG)"
